@@ -1,21 +1,19 @@
 package model.orders.events.repository
 
-import org.bson.types.ObjectId
-import org.mongodb.morphia.annotations.Entity
-import org.mongodb.morphia.annotations.Id
-import org.mongodb.morphia.annotations.Indexed
+import org.bson.BsonType
+import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.codecs.pojo.annotations.BsonRepresentation
 import java.util.*
 
 /**
  * Permite almacenar los eventos del event store.
  */
-@Entity(value = "event", noClassnameStored = true)
-class Event private constructor(
-    @Id
-    val id: ObjectId? = null,
+data class Event(
+    @BsonId
+    @BsonRepresentation(BsonType.OBJECT_ID)
+    val id: String? = null,
 
-    @Indexed
-    var orderId: ObjectId? = null,
+    var orderId: String? = null,
 
     /**
      * Tipo de evento, es mejor que hacer herencia, mucho mas claro
@@ -30,7 +28,6 @@ class Event private constructor(
     companion object {
         // Crea un nuevo evento de place order
         fun newPlaceOrder(placeEvent: PlaceEvent?) = Event(
-            orderId = ObjectId(),
             type = EventType.PLACE_ORDER,
             placeEvent = placeEvent
         )
@@ -39,7 +36,7 @@ class Event private constructor(
             orderId: String?,
             validationEvent: ArticleValidationEvent?
         ) = Event(
-            orderId = ObjectId(orderId),
+            orderId = orderId,
             type = EventType.ARTICLE_VALIDATION,
             articleValidationEvent = validationEvent
         )
@@ -50,7 +47,7 @@ class Event private constructor(
             method: PaymentEvent.Method?,
             amount: Double
         ) = Event(
-            orderId = ObjectId(orderId),
+            orderId = orderId,
             type = EventType.PAYMENT,
             payment = PaymentEvent(userId, method, amount)
         )

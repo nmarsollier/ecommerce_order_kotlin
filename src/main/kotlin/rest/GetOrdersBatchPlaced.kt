@@ -1,6 +1,8 @@
 package rest
 
 import io.javalin.Javalin
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import model.batch.BatchService
 import utils.javalin.route
 
@@ -28,8 +30,10 @@ class GetOrdersBatchPlaced private constructor(
             route(
                 validateAdminUser
             ) {
-                batch.processPlacedOrders();
-                it.json("")
+                MainScope().launch {
+                    batch.processPlacedOrders();
+                    it.json("")
+                }
             })
     }
 

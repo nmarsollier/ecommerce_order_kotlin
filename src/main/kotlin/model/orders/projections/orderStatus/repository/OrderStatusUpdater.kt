@@ -12,6 +12,7 @@ fun getUpdaterForEvent(type: EventType?): OrderStatusUpdater {
         EventType.PLACE_ORDER -> placeEventUpdater
         EventType.ARTICLE_VALIDATION -> articleValidationUpdater
         EventType.PAYMENT -> paymentUpdater
+        null -> Unit
     }
     return voidEventUpdater
 }

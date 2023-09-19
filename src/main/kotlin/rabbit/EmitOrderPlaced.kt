@@ -36,7 +36,7 @@ class EmitOrderPlaced private constructor() {
                 exchange = "order",
                 queue = "order",
                 message = OrderPlacedResponse(
-                    event.orderId!!.toHexString(),
+                    event.orderId!!,
                     event.placeEvent!!.cartId,
                     event.placeEvent!!.articles
                 )

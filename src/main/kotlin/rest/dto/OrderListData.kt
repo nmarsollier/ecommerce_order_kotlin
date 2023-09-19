@@ -6,7 +6,7 @@ import model.orders.projections.orderStatus.repository.OrderStatus
 
 class OrderListData constructor(order: OrderStatus) {
     @SerializedName("id")
-    var id: String = order.id!!.toHexString()
+    var id: String = order.id!!
 
     @SerializedName("status")
     var status: Status = order.status ?: Status.INVALID

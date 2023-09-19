@@ -21,10 +21,10 @@ data class EnvData(
 
 object Environment {
     var env = EnvData(
-        serverPort = System.getenv("SERVER_PORT")?.toIntOrNull() ?: 3002,
+        serverPort = System.getenv("SERVER_PORT")?.toIntOrNull() ?: 3004,
         securityServerUrl = System.getenv("AUTH_SERVICE_URL") ?: "http://localhost:3000",
         rabbitServerUrl = System.getenv("RABBIT_URL") ?: "localhost",
-        databaseUrl = System.getenv("MONGO_URL") ?: "localhost",
+        databaseUrl = System.getenv("MONGO_URL") ?: "mongodb://localhost",
         staticLocation = System.getenv("WWW_PATH") ?: "${System.getProperty("user.dir")}/resources/www"
     )
 }

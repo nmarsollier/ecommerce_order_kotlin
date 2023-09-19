@@ -3,27 +3,23 @@ package model.orders.projections.orderStatus.repository
 import model.orders.events.repository.Event
 import model.orders.projections.order.repository.Order
 import model.orders.projections.order.repository.Status
-import org.bson.types.ObjectId
-import org.mongodb.morphia.annotations.Entity
-import org.mongodb.morphia.annotations.Id
-import org.mongodb.morphia.annotations.Indexed
+import org.bson.BsonType
+import org.bson.codecs.pojo.annotations.BsonId
+import org.bson.codecs.pojo.annotations.BsonRepresentation
 import java.util.*
 
 /**
  * Es el Agregado principal de Articulo.
  */
-@Entity(value = "order_projection", noClassnameStored = true)
 data class OrderStatus(
-    @Id
-    val id: ObjectId? = null,
+    @BsonId
+    @BsonRepresentation(BsonType.OBJECT_ID)
+    val id: String? = null,
 
-    @Indexed
     val status: Status? = null,
 
-    @Indexed
     val userId: String? = null,
 
-    @Indexed
     val cartId: String? = null,
     val articles: Int = 0,
     val payment: Double = 0.0,

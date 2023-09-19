@@ -1,46 +1,46 @@
 package model.orders.events.repository
 
-import org.bson.types.ObjectId
-import utils.db.OrderStore
-import utils.kt.nextOrNull
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Sorts
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
+import model.db.MongoStore
 
-class EventRepository private constructor(
-    private var store: OrderStore = OrderStore.instance()
-) {
-    fun save(event: Event): Event {
-        store.save(event)
-        return event
+class EventRepository private constructor() {
+    private val collection = MongoStore.collection<Event>("event")
+
+    suspend fun save(event: Event): Event {
+        val _id = collection.insertOne(event).insertedId?.toString()
+
+        return event.copy(id = _id)
     }
 
-    fun findPlaceByCartId(cartId: String?): Event? {
-        return store.createQuery<Event>()?.let {
-            it.and(
-                it.criteria("type").equal(EventType.PLACE_ORDER),
-                it.criteria("placeEvent.cartId").equal(cartId)
+    suspend fun findPlaceByCartId(cartId: String?): Event? {
+        return collection.find(
+            Filters.and(
+                Filters.eq("placeEvent.cartId", cartId),
+                Filters.eq("type", EventType.PLACE_ORDER),
             )
-
-            return it.fetch().nextOrNull()
-        }
+        ).firstOrNull()
     }
 
 
-    fun findPlaceByOrderId(orderId: ObjectId?): Event? {
-        return store.createQuery<Event>()?.let {
-            it.and(
-                it.criteria("type").equal(EventType.PLACE_ORDER),
-                it.criteria("orderId").equal(orderId)
+    suspend fun findPlaceByOrderId(orderId: String?): Event? {
+        return collection.find(
+            Filters.and(
+                Filters.eq("orderId", orderId),
+                Filters.eq("type", EventType.PLACE_ORDER),
             )
-            return it.fetch().nextOrNull()
-        }
+        ).firstOrNull()
     }
 
-    fun findByOrderId(orderId: ObjectId?): List<Event> {
-        return store.createQuery<Event>()?.let {
-            it.and(it.criteria("orderId").equal(orderId))
-            it.order("created")
-
-            it.fetch().toList()
-        } ?: emptyList()
+    suspend fun findByOrderId(orderId: String): List<Event> {
+        return collection
+                .find(
+                    Filters.eq("orderId", orderId)
+                )
+                .sort(Sorts.ascending("created"))
+                .toList()
     }
 
     companion object {

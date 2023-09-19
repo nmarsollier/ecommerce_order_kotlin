@@ -1,5 +1,7 @@
 package rabbit
 
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import model.orders.events.EventService
 import model.orders.events.dto.NewArticleValidationData
 import utils.env.Log
@@ -35,7 +37,7 @@ class ConsumeArticleData private constructor(
         }
     }
 
-    private fun processArticleData(event: RabbitEvent?) {
+    private fun processArticleData(event: RabbitEvent?) = MainScope().launch {
         event?.message?.toString()?.jsonToObject<NewArticleValidationData>()?.let { articleExist ->
             try {
                 service.placeArticleExist(articleExist)

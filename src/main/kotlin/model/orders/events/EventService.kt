@@ -14,7 +14,7 @@ class EventService private constructor(
     val repository: EventRepository = EventRepository.instance(),
     val projections: ProjectionService = ProjectionService.instance()
 ) {
-    fun placeOrder(data: NewPlaceData): Event {
+    suspend fun placeOrder(data: NewPlaceData): Event {
         data.validate()
         return repository.findPlaceByCartId(data.cartId) ?: let {
             val event = Event.newPlaceOrder(
@@ -32,7 +32,7 @@ class EventService private constructor(
         }
     }
 
-    fun placeArticleExist(data: NewArticleValidationData): Event {
+    suspend fun placeArticleExist(data: NewArticleValidationData): Event {
         data.validate()
 
         val event = Event.newArticleValidation(
@@ -47,7 +47,7 @@ class EventService private constructor(
         return event
     }
 
-    fun placePayment(payment: PaymentData): Event {
+    suspend fun placePayment(payment: PaymentData): Event {
         payment.validate()
 
         val event = Event.newPayment(payment.orderId, payment.userId, payment.method, payment.amount)

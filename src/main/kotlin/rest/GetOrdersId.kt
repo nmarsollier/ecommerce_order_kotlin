@@ -1,8 +1,9 @@
 package rest
 
 import io.javalin.Javalin
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import model.orders.projections.order.OrderService
-import org.bson.types.ObjectId
 import utils.errors.UnauthorizedError
 import utils.errors.ValidationError
 import utils.javalin.route
@@ -46,14 +47,16 @@ class GetOrdersId private constructor(
                 validateUser,
                 validateOrderId
             ) {
-                val order = service.buildOrder(ObjectId(it.queryParam("orderId")))
-                    ?: throw  ValidationError().addPath("orderId", "Not Found")
+                MainScope().launch {
+                    val order = service.buildOrder(it.queryParam("orderId")!!)
+                        ?: throw ValidationError().addPath("orderId", "Not Found")
 
-                if (!order.userId.equals(it.currentUser().id)) {
-                    throw UnauthorizedError()
+                    if (!order.userId.equals(it.currentUser().id)) {
+                        throw UnauthorizedError()
+                    }
+
+                    it.json(order)
                 }
-
-                it.json(order)
             })
     }
 

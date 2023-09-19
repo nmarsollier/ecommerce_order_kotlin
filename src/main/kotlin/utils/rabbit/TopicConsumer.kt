@@ -7,7 +7,6 @@ import utils.validator.validate
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.collections.HashMap
 
 /**
  * La cola topic permite que varios consumidores escuchen el mismo evento

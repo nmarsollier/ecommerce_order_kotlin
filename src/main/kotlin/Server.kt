@@ -1,7 +1,5 @@
 import rabbit.Consumers
 import rest.Routes
-import utils.db.OrderStore
-import utils.db.ProjectionsStore
 import utils.env.Environment
 import utils.env.Log
 
@@ -14,8 +12,6 @@ class Server {
         Log.info("Order Service escuchando en el puerto : ${Environment.env.serverPort}")
 
         // Initialize Mongo Store
-        OrderStore.instance()
-        ProjectionsStore.instance()
         Routes.init()
         Consumers.init()
     }

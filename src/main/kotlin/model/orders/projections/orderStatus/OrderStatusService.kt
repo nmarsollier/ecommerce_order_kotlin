@@ -1,18 +1,19 @@
 package model.orders.projections.orderStatus
 
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import model.orders.events.repository.Event
 import model.orders.events.repository.EventRepository
 import model.orders.projections.orderStatus.repository.OrderStatus
 import model.orders.projections.orderStatus.repository.OrderStatusRepository
-import org.bson.types.ObjectId
 
 class OrderStatusService(
     val orderRepository: OrderStatusRepository = OrderStatusRepository.instance(),
     val eventRepository: EventRepository = EventRepository.instance()
 ) {
     // Actualiza la proyección Order
-    fun update(event: Event) {
-        val orderId = event.orderId ?: return
+    fun update(event: Event) = MainScope().launch {
+        val orderId = event.orderId ?: return@launch
         var order: OrderStatus? = orderRepository.findById(orderId)
 
         if (order == null) {
@@ -23,7 +24,7 @@ class OrderStatusService(
         orderRepository.save(order)
     }
 
-    fun findById(orderId: ObjectId?): OrderStatus? {
+    suspend fun findById(orderId: String?): OrderStatus? {
         orderId ?: return null
         var order: OrderStatus? = orderRepository.findById(orderId)
         if (order == null) {
@@ -33,10 +34,10 @@ class OrderStatusService(
     }
 
     // Se elimina y regenera la proyección a partir de los eventos.
-    fun rebuildOrderStatus(orderId: ObjectId?): OrderStatus? {
+    suspend fun rebuildOrderStatus(orderId: String?): OrderStatus? {
         orderId ?: return null
         val events: List<Event> = eventRepository.findByOrderId(orderId)
-        if (events.size == 0) {
+        if (events.isEmpty()) {
             return null
         }
         orderRepository.delete(orderId)

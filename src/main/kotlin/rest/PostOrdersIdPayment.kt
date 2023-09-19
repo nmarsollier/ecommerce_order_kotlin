@@ -1,6 +1,8 @@
 package rest
 
 import io.javalin.Javalin
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import model.orders.events.EventService
 import model.orders.events.dto.PaymentData
 import utils.errors.ValidationError
@@ -35,16 +37,18 @@ class PostOrdersIdPayment private constructor(
                 validateUser,
                 validateOrderId
             ) {
-                val orderId: String = it.pathParam("orderId")
-                val user = it.currentUser()
+                MainScope().launch {
+                    val orderId: String = it.pathParam("orderId")
+                    val user = it.currentUser()
 
-                it.body().jsonToObject<PaymentData>()?.let { payment ->
-                    payment.copy(
-                        orderId = orderId,
-                        userId = user.id
-                    )
-                    service.placePayment(payment)
-                } ?: throw ValidationError().addPath("id", "Not found")
+                    it.body().jsonToObject<PaymentData>()?.let { payment ->
+                        payment.copy(
+                            orderId = orderId,
+                            userId = user.id
+                        )
+                        service.placePayment(payment)
+                    } ?: throw ValidationError().addPath("id", "Not found")
+                }
             })
     }
 

@@ -7,7 +7,6 @@ import utils.validator.validate
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.collections.HashMap
 
 /**
  * Las colas fanout son un broadcast, no necesitan queue, solo exchange que es donde se publican

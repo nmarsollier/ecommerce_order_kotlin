@@ -3,13 +3,12 @@ package model.orders.projections.order
 import model.orders.events.repository.Event
 import model.orders.events.repository.EventRepository
 import model.orders.projections.order.repository.Order
-import org.bson.types.ObjectId
 
 class OrderService(
     val repository: EventRepository = EventRepository.instance()
 ) {
     // Se elimina y regenera la proyección a partir de los eventos.
-    fun buildOrder(orderId: ObjectId?): Order? {
+    suspend fun buildOrder(orderId: String): Order? {
         val events: List<Event> = repository.findByOrderId(orderId)
 
         if (events.isEmpty()) {
