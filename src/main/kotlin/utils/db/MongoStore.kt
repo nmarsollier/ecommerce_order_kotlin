@@ -12,16 +12,16 @@ import utils.env.Environment.env
 /**
  * Permite la configuración del acceso a la db
  */
-object MongoStore {
+class MongoStore {
     private var pojoCodecRegistry: CodecRegistry =
         CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build())
     private var codecRegistry: CodecRegistry =
         CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry)
 
     private var clientSettings: MongoClientSettings = MongoClientSettings.builder()
-            .applyConnectionString(ConnectionString(env.databaseUrl))
-            .codecRegistry(codecRegistry)
-            .build()
+        .applyConnectionString(ConnectionString(env.databaseUrl))
+        .codecRegistry(codecRegistry)
+        .build()
 
     private val client = MongoClient.create(clientSettings)
     val database = client.getDatabase(databaseName = "orders_kotlin")

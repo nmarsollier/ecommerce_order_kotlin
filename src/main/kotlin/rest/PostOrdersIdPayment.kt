@@ -1,14 +1,13 @@
 package rest
 
 import events.EventService
-import io.javalin.Javalin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import io.ktor.server.application.*
+import io.ktor.server.routing.*
+import projections.order.repository.asOrderId
 import rabbit.PaymentData
-import utils.errors.ValidationError
-import utils.gson.jsonToObject
-import utils.javalin.route
+import security.TokenService
+import security.validateTokenIsLoggedIn
+import utils.http.authHeader
 
 /**
  * @api {post} /v1/orders/:orderId/payment Agregar Pago
@@ -28,39 +27,20 @@ import utils.javalin.route
  *
  * @apiUse Errors
  */
-class PostOrdersIdPayment private constructor(
-    private val service: EventService = EventService.instance()
+class PostOrdersIdPayment(
+    private val service: EventService,
+    private val tokenService: TokenService
 ) {
-    private fun init(app: Javalin) {
-        app.post(
-            "/v1/orders/{orderId}/payment",
-            route(
-                validateUser,
-                validateOrderId
-            ) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val orderId: String = it.pathParam("orderId")
-                    val user = it.currentUser()
+    fun init(app: Routing) = app.apply {
+        post<PaymentData>("/v1/orders/{orderId}/payment") {
+            val user = this.call.authHeader.validateTokenIsLoggedIn(tokenService)
+            val id = this.call.parameters["orderId"].asOrderId
 
-                    it.body().jsonToObject<PaymentData>()?.let { payment ->
-                        payment.copy(
-                            orderId = orderId,
-                            userId = user.id
-                        )
-                        service.placePayment(payment)
-                    } ?: throw ValidationError().addPath("id", "Not found")
-                }
-            })
-    }
-
-    companion object {
-        var currentInstance: PostOrdersIdPayment? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: PostOrdersIdPayment().also {
-                it.init(app)
-                currentInstance = it
-            }
+            val payment = it.copy(
+                orderId = id,
+                userId = user.id
+            )
+            service.placePayment(payment)
         }
     }
 }

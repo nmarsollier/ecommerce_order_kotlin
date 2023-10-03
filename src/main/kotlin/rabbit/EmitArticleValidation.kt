@@ -21,18 +21,16 @@ import utils.rabbit.RabbitEvent
  *        }
  *     }
  */
-class EmitArticleValidation private constructor() {
-    companion object {
-        fun emit(orderId: String, articleId: String) {
-            val eventToSend = RabbitEvent(
-                type = "article-data",
-                exchange = "order",
-                queue = "order",
-                message = ArticleValidationData(orderId, articleId)
-            )
+class EmitArticleValidation {
+    fun emit(orderId: String, articleId: String) {
+        val eventToSend = RabbitEvent(
+            type = "article-data",
+            exchange = "order",
+            queue = "order",
+            message = ArticleValidationData(orderId, articleId)
+        )
 
-            DirectPublisher.publish(eventToSend.exchange, eventToSend.queue, eventToSend)
-        }
+        DirectPublisher.publish(eventToSend.exchange, eventToSend.queue, eventToSend)
     }
 }
 

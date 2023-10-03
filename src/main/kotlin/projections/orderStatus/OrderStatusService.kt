@@ -9,8 +9,8 @@ import projections.orderStatus.repository.OrderStatus
 import projections.orderStatus.repository.OrderStatusRepository
 
 class OrderStatusService(
-    val orderRepository: OrderStatusRepository = OrderStatusRepository.instance(),
-    val eventRepository: EventRepository = EventRepository.instance()
+    val orderRepository: OrderStatusRepository,
+    val eventRepository: EventRepository
 ) {
     // Actualiza la proyección Order
     fun update(event: Event) = CoroutineScope(Dispatchers.IO).launch {
@@ -50,15 +50,5 @@ class OrderStatusService(
 
         orderRepository.save(order)
         return order
-    }
-
-    companion object {
-        private var currentInstance: OrderStatusService? = null
-
-        fun instance(): OrderStatusService {
-            return currentInstance ?: OrderStatusService().also {
-                currentInstance = it
-            }
-        }
     }
 }

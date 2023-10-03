@@ -27,10 +27,11 @@ import utils.rabbit.RabbitEvent
  *         "articles": "[articleId, ...]",
  *     }
  */
-class ConsumePlaceOrder private constructor(
-    private val service: EventService = EventService.instance()
+class ConsumePlaceOrder(
+    private val service: EventService,
+    private val emitOrderPlaced: EmitOrderPlaced
 ) {
-    private fun init() {
+    fun init() {
         DirectConsumer("order", "order").apply {
             addProcessor("place-order") { e: RabbitEvent? -> processPlaceOrder(e) }
             start()
@@ -42,20 +43,9 @@ class ConsumePlaceOrder private constructor(
         event?.message?.toString()?.jsonToObject<NewPlaceData>()?.let { cart ->
             try {
                 val data = service.placeOrder(cart)
-                EmitOrderPlaced.emit(data)
+                emitOrderPlaced.emit(data)
             } catch (e: Exception) {
                 Log.error(e)
-            }
-        }
-    }
-
-    companion object {
-        private var currentInstance: ConsumePlaceOrder? = null
-
-        fun init() {
-            currentInstance ?: ConsumePlaceOrder().also {
-                it.init()
-                currentInstance = it
             }
         }
     }

@@ -28,22 +28,20 @@ import utils.rabbit.RabbitEvent
  *     }
  *
  */
-class EmitOrderPlaced private constructor() {
-    companion object {
-        fun emit(event: Event) {
-            val eventToSend = RabbitEvent(
-                type = "order-placed",
-                exchange = "order",
-                queue = "order",
-                message = OrderPlacedResponse(
-                    event.orderId!!,
-                    event.placeEvent!!.cartId,
-                    event.placeEvent!!.articles
-                )
+class EmitOrderPlaced {
+    fun emit(event: Event) {
+        val eventToSend = RabbitEvent(
+            type = "order-placed",
+            exchange = "order",
+            queue = "order",
+            message = OrderPlacedResponse(
+                event.orderId!!,
+                event.placeEvent!!.cartId,
+                event.placeEvent!!.articles
             )
+        )
 
-            DirectPublisher.publish(eventToSend.exchange, eventToSend.queue, eventToSend)
-        }
+        DirectPublisher.publish(eventToSend.exchange, eventToSend.queue, eventToSend)
     }
 }
 

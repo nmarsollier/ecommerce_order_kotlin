@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit
  * @apiErrorExample 401 Unauthorized
  * HTTP/1.1 401 Unauthorized
  */
-class TokenService private constructor(
-    private var dao: TokenDao = TokenDao.instance()
+class TokenService(
+    private var dao: TokenDao
 ) {
     private val map = CacheBuilder
         .newBuilder()
@@ -45,15 +45,5 @@ class TokenService private constructor(
 
     fun invalidateTokenCache(token: String) {
         map.invalidate(token)
-    }
-
-    companion object {
-        private var currentInstance: TokenService? = null
-
-        fun instance(): TokenService {
-            return currentInstance ?: TokenService().also {
-                currentInstance = it
-            }
-        }
     }
 }

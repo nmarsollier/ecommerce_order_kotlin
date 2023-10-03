@@ -5,7 +5,7 @@ import events.repository.EventRepository
 import projections.order.repository.Order
 
 class OrderService(
-    val repository: EventRepository = EventRepository.instance()
+    val repository: EventRepository
 ) {
     // Se elimina y regenera la proyección a partir de los eventos.
     suspend fun buildOrder(orderId: String): Order? {
@@ -20,15 +20,5 @@ class OrderService(
             order = order.update(it)
         }
         return order
-    }
-
-    companion object {
-        private var currentInstance: OrderService? = null
-
-        fun instance(): OrderService {
-            return currentInstance ?: OrderService().also {
-                currentInstance = it
-            }
-        }
     }
 }

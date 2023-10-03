@@ -4,8 +4,10 @@ import security.TokenService
 import utils.rabbit.FanoutConsumer
 import utils.rabbit.RabbitEvent
 
-class ConsumeAuthLogout private constructor() {
-    private fun init() {
+class ConsumeAuthLogout(
+    private val tokenService: TokenService
+) {
+    fun init() {
         FanoutConsumer("auth").apply {
             addProcessor("logout") { e: RabbitEvent? -> processLogout(e) }
             start()
@@ -27,18 +29,7 @@ class ConsumeAuthLogout private constructor() {
      */
     private fun processLogout(event: RabbitEvent?) {
         event?.message?.toString()?.let {
-            TokenService.instance().invalidateTokenCache(it)
-        }
-    }
-
-    companion object {
-        private var currentInstance: ConsumeAuthLogout? = null
-
-        fun init() {
-            currentInstance ?: ConsumeAuthLogout().also {
-                it.init()
-                currentInstance = it
-            }
+            tokenService.invalidateTokenCache(it)
         }
     }
 }

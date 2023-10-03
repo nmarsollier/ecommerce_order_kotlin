@@ -1,68 +1,46 @@
 package rest
 
-import io.javalin.Javalin
-import utils.env.Log
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import utils.errors.SimpleError
 import utils.errors.UnauthorizedError
 import utils.errors.ValidationError
 
+class ErrorHandler {
+    fun init(app: Application) = app.apply {
+        install(StatusPages) {
+            exception<Throwable> { call, throwable ->
+                when (throwable) {
+                    is ValidationError -> {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            throwable.json()
+                        )
+                    }
 
-/**
- * Es un Helper para serializar correctamente los errores del sistema.
- *
- * @apiDefine Errors
- *
- * @apiErrorExample 400 Bad Request
- *     HTTP/1.1 400 Bad Request
- *     {
- *         "path" : "{Nombre de la propiedad}",
- *         "message" : "{Motivo del error}"
- *     }
- *
- * @apiErrorExample 400 Bad Request
- *     HTTP/1.1 400 Bad Request
- *     {
- *         "error" : "{Motivo del error}"
- *     }
- *
- * @apiErrorExample 500 Server Error
- *     HTTP/1.1 500 Server Error
- *     {
- *         "error" : "{Motivo del error}"
- *     }
- */
-class ErrorHandler private constructor() {
-    private val INTERNAL_ERROR = mapOf("error" to "Internal Server Error")
+                    is SimpleError -> {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            throwable.json()
+                        )
+                    }
 
-    private fun init(app: Javalin) {
-        app.exception(ValidationError::class.java) { ex, ctx ->
-            Log.error(ex)
-            ctx.status(400).json(ex.json())
-        }
+                    is UnauthorizedError -> {
+                        call.respond(
+                            HttpStatusCode.Unauthorized,
+                            throwable.json()
+                        )
+                    }
 
-        app.exception(SimpleError::class.java) { ex, ctx ->
-            Log.error(ex)
-            ctx.status(400).json(ex.json())
-        }
-
-        app.exception(UnauthorizedError::class.java) { ex, ctx ->
-            Log.error(ex)
-            ctx.status(401).json(ex.json())
-        }
-
-        app.exception(Exception::class.java) { ex, ctx ->
-            Log.error(ex)
-            ctx.status(500).json(INTERNAL_ERROR)
-        }
-    }
-
-    companion object {
-        var currentInstance: ErrorHandler? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: ErrorHandler().also {
-                it.init(app)
-                currentInstance = it
+                    is Exception -> {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            mapOf("error" to throwable.message)
+                        )
+                    }
+                }
             }
         }
     }

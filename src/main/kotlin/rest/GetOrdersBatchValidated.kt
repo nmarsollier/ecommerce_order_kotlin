@@ -1,8 +1,12 @@
 package rest
 
-import io.javalin.Javalin
 import batch.BatchService
-import utils.javalin.route
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import security.TokenService
+import security.validateTokenIsAdminUser
+import utils.http.authHeader
 
 /**
  * @api {get} /v1/orders_batch/validated Batch Validated
@@ -19,28 +23,16 @@ import utils.javalin.route
  *
  * @apiUse Errors
  */
-class GetOrdersBatchValidated private constructor(
-    private val batch: BatchService = BatchService.instance()
+class GetOrdersBatchValidated(
+    private val batch: BatchService,
+    private val tokenService: TokenService
 ) {
-    private fun init(app: Javalin) {
-        app.get(
-            "/v1/orders_batch/validated",
-            route(
-                validateAdminUser
-            ) {
-                batch.processValidatedOrders();
-                it.json("")
-            })
-    }
+    fun init(app: Routing) = app.apply {
+        get("/v1/orders_batch/validated") {
+            this.call.authHeader.validateTokenIsAdminUser(tokenService)
 
-    companion object {
-        var currentInstance: GetOrdersBatchValidated? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: GetOrdersBatchValidated().also {
-                it.init(app)
-                currentInstance = it
-            }
+            batch.processValidatedOrders();
+            this.call.respond("")
         }
     }
 }

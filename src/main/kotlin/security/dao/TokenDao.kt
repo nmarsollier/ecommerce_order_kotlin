@@ -6,8 +6,8 @@ import utils.env.Log
 import utils.gson.jsonToObject
 import utils.http.HttpTools
 
-class TokenDao private constructor(
-    val http: HttpTools = HttpTools.instance()
+class TokenDao(
+    private val http: HttpTools
 ) {
     fun retrieveUser(token: String): User? {
         return try {
@@ -27,16 +27,6 @@ class TokenDao private constructor(
         } catch (e: Exception) {
             Log.error(e)
             null
-        }
-    }
-
-    companion object {
-        private var currentInstance: TokenDao? = null
-
-        fun instance(): TokenDao {
-            return currentInstance ?: TokenDao().also {
-                currentInstance = it
-            }
         }
     }
 }

@@ -5,6 +5,8 @@ import events.repository.PaymentEvent
 import org.bson.BsonType
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.codecs.pojo.annotations.BsonRepresentation
+import org.bson.types.ObjectId
+import utils.errors.ValidationError
 import java.util.*
 
 /**
@@ -54,3 +56,18 @@ data class Order(
 enum class Status {
     PLACED, INVALID, VALIDATED, PAYMENT_DEFINED
 }
+
+val String?.asOrderId: String
+    get() {
+        if (this.isNullOrBlank()) {
+            throw ValidationError("id" to "Is Invalid")
+        }
+
+        try {
+            ObjectId(this)
+        } catch (e: Exception) {
+            throw ValidationError("id" to "Is Invalid")
+        }
+
+        return this
+    }

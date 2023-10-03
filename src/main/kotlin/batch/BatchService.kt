@@ -11,13 +11,14 @@ import projections.orderStatus.repository.OrderStatusRepository
 import rabbit.EmitArticleValidation
 import java.util.concurrent.atomic.AtomicBoolean
 
-class BatchService private constructor(
-    private val placeOrdersRunning: AtomicBoolean = AtomicBoolean(),
-    private val validatedOrdersRunning: AtomicBoolean = AtomicBoolean(),
-    private val orderService: OrderService = OrderService.instance(),
-    private val statusRepository: OrderStatusRepository = OrderStatusRepository.instance(),
-    private val eventRepository: EventRepository = EventRepository.instance()
+class BatchService(
+    private val orderService: OrderService,
+    private val statusRepository: OrderStatusRepository,
+    private val eventRepository: EventRepository,
+    private val emitArticleValidation: EmitArticleValidation
 ) {
+    private val placeOrdersRunning: AtomicBoolean = AtomicBoolean()
+    private val validatedOrdersRunning: AtomicBoolean = AtomicBoolean()
 
     suspend fun processPlacedOrders() = CoroutineScope(Dispatchers.IO).launch {
         if (placeOrdersRunning.compareAndSet(false, true)) {
@@ -73,22 +74,12 @@ class BatchService private constructor(
                  */
                 if (event.type === EventType.PLACE_ORDER) {
                     event.placeEvent?.articles?.forEach { a ->
-                        EmitArticleValidation.emit(
+                        emitArticleValidation.emit(
                             event.orderId!!,
                             a.articleId!!
                         )
                     }
                 }
-            }
-        }
-    }
-
-    companion object {
-        private var currentInstance: BatchService? = null
-
-        fun instance(): BatchService {
-            return currentInstance ?: BatchService().also {
-                currentInstance = it
             }
         }
     }

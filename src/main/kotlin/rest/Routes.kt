@@ -1,70 +1,59 @@
 package rest
 
-import com.rabbitmq.tools.json.JSONUtil
-import io.javalin.Javalin
-import io.javalin.config.JavalinConfig
-import io.javalin.http.InternalServerErrorResponse
-import io.javalin.json.JavalinJackson
-import io.javalin.json.JsonMapper
-import io.javalin.json.PipedStreamUtil
-import io.javalin.plugin.bundled.CorsContainer
-import io.javalin.util.CoreDependency
-import io.javalin.util.DependencyUtil
-import io.javalin.util.JavalinLogger
-import io.javalin.util.Util
+import io.ktor.http.*
+import io.ktor.serialization.gson.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.routing.*
 import utils.env.Environment
-import utils.gson.gson
-import utils.gson.toJson
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.OutputStream
-import java.lang.reflect.Type
-import java.util.function.Consumer
-import java.util.stream.Stream
+import java.io.File
 
-class Routes private constructor() {
-    companion object {
+class Routes(
+    private val getOrders: GetOrders,
+    private val getOrdersId: GetOrdersId,
+    private val getOrdersBatchPaymentDefined: GetOrdersBatchPaymentDefined,
+    private val getOrdersBatchPlaced: GetOrdersBatchPlaced,
+    private val getOrdersBatchValidated: GetOrdersBatchValidated,
+    private val postOrdersIdPayment: PostOrdersIdPayment
+) {
 
-        fun init() {
-            val gsonMapper: JsonMapper = object : JsonMapper {
-                override fun toJsonString(obj: Any, type: Type): String {
-                    return gson().toJson()
+    fun init() {
+        embeddedServer(
+            Netty,
+            port = Environment.env.serverPort,
+            module = {
+                install(CORS) {
+                    anyHost()
+                    allowMethod(HttpMethod.Options)
+                    allowMethod(HttpMethod.Put)
+                    allowMethod(HttpMethod.Patch)
+                    allowMethod(HttpMethod.Delete)
+                    allowHeader(HttpHeaders.ContentType)
+                    allowHeader(HttpHeaders.Authorization)
                 }
-
-                override fun <T : Any> fromJsonString(json: String, targetType: Type): T {
-                    return gson().fromJson(json, targetType)
+                install(ContentNegotiation) {
+                    gson()
                 }
+                install(CallLogging)
 
-                override fun toJsonStream(obj: Any, type: Type): InputStream = when (obj) {
-                    is String -> obj.byteInputStream()
-                    else -> obj.toJson().byteInputStream()
-                }
+                ErrorHandler().init(this)
 
-                override fun writeToOutputStream(stream: Stream<*>, outputStream: OutputStream) {
-                    stream.forEach { outputStream.write(it.toJson().toByteArray()) }
-                }
+                routing {
+                    staticFiles("/", File(Environment.env.staticLocation))
 
-                override fun <T : Any> fromJsonStream(json: InputStream, targetType: Type): T {
-                    return gson().fromJson(InputStreamReader(json), targetType)
+                    getOrders.init(this)
+                    getOrdersBatchPaymentDefined.init(this)
+                    getOrdersBatchPlaced.init(this)
+                    getOrdersBatchValidated.init(this)
+                    getOrdersId.init(this)
+                    postOrdersIdPayment.init(this)
                 }
             }
-
-            val app = Javalin.create { config: JavalinConfig ->
-                config.jsonMapper(gsonMapper)
-                config.plugins.enableCors { cors: CorsContainer ->
-                    cors.add { it.anyHost() }
-                }
-                //config.staticFiles.add(Environment.env.staticLocation)
-            }
-            app.start(Environment.env.serverPort)
-
-            ErrorHandler.init(app)
-            GetOrders.init(app)
-            GetOrdersBatchPaymentDefined.init(app)
-            GetOrdersBatchPlaced.init(app)
-            GetOrdersBatchValidated.init(app)
-            GetOrdersId.init(app)
-            PostOrdersIdPayment.init(app)
-        }
+        ).start(wait = true)
     }
 }

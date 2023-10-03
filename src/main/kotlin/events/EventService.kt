@@ -10,9 +10,9 @@ import events.repository.PlaceEvent
 import projections.ProjectionService
 import utils.validator.validate
 
-class EventService private constructor(
-    val repository: EventRepository = EventRepository.instance(),
-    val projections: ProjectionService = ProjectionService.instance()
+class EventService(
+    val repository: EventRepository,
+    val projections: ProjectionService
 ) {
     suspend fun placeOrder(data: NewPlaceData): Event {
         data.validate()
@@ -56,15 +56,5 @@ class EventService private constructor(
         repository.save(event)
         projections.updateProjections(event)
         return event
-    }
-
-    companion object {
-        private var currentInstance: EventService? = null
-
-        fun instance(): EventService {
-            return currentInstance ?: EventService().also {
-                currentInstance = it
-            }
-        }
     }
 }

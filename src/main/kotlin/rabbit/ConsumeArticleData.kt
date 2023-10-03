@@ -27,10 +27,10 @@ import utils.rabbit.RabbitEvent
  *        }
  *     }
  */
-class ConsumeArticleData private constructor(
-    private val service: EventService = EventService.instance()
+class ConsumeArticleData(
+    private val service: EventService
 ) {
-    private fun init() {
+    fun init() {
         DirectConsumer("order", "order").apply {
             addProcessor("article-data") { e: RabbitEvent? -> processArticleData(e) }
             start()
@@ -43,17 +43,6 @@ class ConsumeArticleData private constructor(
                 service.placeArticleExist(articleExist)
             } catch (e: Exception) {
                 Log.error(e)
-            }
-        }
-    }
-
-    companion object {
-        private var currentInstance: ConsumeArticleData? = null
-
-        fun init() {
-            currentInstance ?: ConsumeArticleData().also {
-                it.init()
-                currentInstance = it
             }
         }
     }

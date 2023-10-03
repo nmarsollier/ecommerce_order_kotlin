@@ -1,11 +1,13 @@
 package rabbit
 
-class Consumers private constructor() {
-    companion object {
-        fun init() {
-            ConsumeArticleData.init()
-            ConsumeAuthLogout.init()
-            ConsumePlaceOrder.init()
-        }
+class Consumers(
+    private val consumeArticleData: ConsumeArticleData,
+    private val consumeAuthLogout: ConsumeAuthLogout,
+    private val consumePlaceOrder: ConsumePlaceOrder
+) {
+    fun init() {
+        consumeArticleData.init()
+        consumeAuthLogout.init()
+        consumePlaceOrder.init()
     }
 }

@@ -1,13 +1,15 @@
 package rest
 
-import io.javalin.Javalin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import projections.order.OrderService
+import projections.order.repository.asOrderId
+import security.TokenService
+import security.validateTokenIsLoggedIn
 import utils.errors.UnauthorizedError
 import utils.errors.ValidationError
-import utils.javalin.route
+import utils.http.authHeader
 
 /**
  * @api {get} /v1/orders/:orderId Buscar Orden
@@ -38,37 +40,23 @@ import utils.javalin.route
  *
  * @apiUse Errors
  */
-class GetOrdersId private constructor(
-    private val service: OrderService = OrderService.instance()
+class GetOrdersId(
+    private val service: OrderService,
+    private val tokenService: TokenService
 ) {
-    private fun init(app: Javalin) {
-        app.get(
-            "/v1/orders/{orderId}",
-            route(
-                validateUser,
-                validateOrderId
-            ) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val order = service.buildOrder(it.queryParam("orderId")!!)
-                        ?: throw ValidationError().addPath("orderId", "Not Found")
+    fun init(app: Routing) = app.apply {
+        get("/v1/orders/{orderId}") {
+            val user = this.call.authHeader.validateTokenIsLoggedIn(tokenService)
+            val id = this.call.parameters["orderId"].asOrderId
 
-                    if (!order.userId.equals(it.currentUser().id)) {
-                        throw UnauthorizedError()
-                    }
+            val order = service.buildOrder(id)
+                ?: throw ValidationError().addPath("orderId", "Not Found")
 
-                    it.json(order)
-                }
-            })
-    }
-
-    companion object {
-        var currentInstance: GetOrdersId? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: GetOrdersId().also {
-                it.init(app)
-                currentInstance = it
+            if (!order.userId.equals(user.id)) {
+                throw UnauthorizedError()
             }
+
+            this.call.respond(order)
         }
     }
 }

@@ -1,11 +1,12 @@
 package rest
 
 import batch.BatchService
-import io.javalin.Javalin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import utils.javalin.route
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import security.TokenService
+import security.validateTokenIsAdminUser
+import utils.http.authHeader
 
 /**
  * @api {get} /v1/orders_batch/placed Batch Placed
@@ -22,30 +23,16 @@ import utils.javalin.route
  *
  * @apiUse Errors
  */
-class GetOrdersBatchPlaced private constructor(
-    private val batch: BatchService = BatchService.instance()
+class GetOrdersBatchPlaced(
+    private val batch: BatchService,
+    private val tokenService: TokenService
 ) {
-    private fun init(app: Javalin) {
-        app.get(
-            "/v1/orders_batch/placed",
-            route(
-                validateAdminUser
-            ) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    batch.processPlacedOrders();
-                    it.json("")
-                }
-            })
-    }
+    fun init(app: Routing) = app.apply {
+        get("/v1/orders_batch/placed") {
+            this.call.authHeader.validateTokenIsAdminUser(tokenService)
 
-    companion object {
-        var currentInstance: GetOrdersBatchPlaced? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: GetOrdersBatchPlaced().also {
-                it.init(app)
-                currentInstance = it
-            }
+            batch.processPlacedOrders();
+            this.call.respond("")
         }
     }
 }

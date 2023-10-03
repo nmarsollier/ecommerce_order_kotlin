@@ -1,8 +1,12 @@
 package rest
 
-import io.javalin.Javalin
 import batch.BatchService
-import utils.javalin.route
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import security.TokenService
+import security.validateTokenIsAdminUser
+import utils.http.authHeader
 
 /**
  * @api {get} /v1/orders_batch/payment_defined Batch Payment Defined
@@ -19,28 +23,16 @@ import utils.javalin.route
  *
  * @apiUse Errors
  */
-class GetOrdersBatchPaymentDefined private constructor(
-    private val batch: BatchService = BatchService.instance()
+class GetOrdersBatchPaymentDefined(
+    private val batch: BatchService,
+    private val tokenService: TokenService
 ) {
-    private fun init(app: Javalin) {
-        app.get(
-            "/v1/orders_batch/payment_defined",
-            route(
-                validateAdminUser
-            ) {
-                batch.processPaymentDefinedOrders();
-                it.json("")
-            })
-    }
+    fun init(app: Routing) = app.apply {
+        get("/v1/orders_batch/payment_defined") {
+            this.call.authHeader.validateTokenIsAdminUser(tokenService)
 
-    companion object {
-        var currentInstance: GetOrdersBatchPaymentDefined? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: GetOrdersBatchPaymentDefined().also {
-                it.init(app)
-                currentInstance = it
-            }
+            batch.processPaymentDefinedOrders();
+            this.call.respond("")
         }
     }
 }

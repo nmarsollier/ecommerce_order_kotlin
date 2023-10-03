@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import utils.db.MongoStore
 
-class EventRepository private constructor() {
-    private val collection = MongoStore.collection<Event>("event")
+class EventRepository(
+    private val mongoStore: MongoStore
+) {
+    private val collection = mongoStore.collection<Event>("event")
 
     suspend fun save(event: Event): Event {
         val _id = collection.insertOne(event).insertedId?.asObjectId()?.value.toString()
@@ -41,15 +43,5 @@ class EventRepository private constructor() {
             )
             .sort(Sorts.ascending("created"))
             .toList()
-    }
-
-    companion object {
-        private var currentInstance: EventRepository? = null
-
-        fun instance(): EventRepository {
-            return currentInstance ?: EventRepository().also {
-                currentInstance = it
-            }
-        }
     }
 }

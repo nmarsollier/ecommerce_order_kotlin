@@ -1,13 +1,12 @@
 package rest
 
-import io.javalin.Javalin
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import projections.orderStatus.repository.OrderStatusRepository
-import rest.dto.OrderListData
-import utils.gson.toJson
-import utils.javalin.route
+import security.TokenService
+import security.validateTokenIsLoggedIn
+import utils.http.authHeader
 
 /**
  * @api {get} /v1/orders Ordenes de Usuario
@@ -32,35 +31,15 @@ import utils.javalin.route
  *   ]
  * @apiUse Errors
  */
-class GetOrders private constructor(
-    private val repository: OrderStatusRepository = OrderStatusRepository.instance()
+class GetOrders(
+    private val repository: OrderStatusRepository,
+    private val tokenService: TokenService
 ) {
-    private fun init(app: Javalin) {
-        app.get(
-            "/v1/orders",
-            route(
-                validateUser
-            ) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val orders = repository.findByUserId(it.currentUser().id)
+    fun init(app: Routing) = app.apply {
+        get("/v1/orders") {
+            val user = this.call.authHeader.validateTokenIsLoggedIn(tokenService)
 
-                    it.json(orders
-                        .map { OrderListData(it) }
-                        .toList()
-                    )
-                }
-            })
-    }
-
-    companion object {
-        var currentInstance: GetOrders? = null
-
-        fun init(app: Javalin) {
-            currentInstance ?: GetOrders().also {
-                it.init(app)
-                currentInstance = it
-            }
+            this.call.respond(repository.findByUserId(user.id))
         }
     }
 }
-

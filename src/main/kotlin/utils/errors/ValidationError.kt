@@ -6,9 +6,17 @@ import com.google.gson.annotations.SerializedName
  * Un error de validaciones de atributos de una clase.
  * Estos errores se pueden serializar como Json.
  */
-data class ValidationError(
-    var messages: MutableList<ValidationMessage> = mutableListOf()
+open class ValidationError(
+    vararg errors: Pair<String, String>
 ) : Exception() {
+    private var messages: MutableList<ValidationMessage> = mutableListOf()
+
+    init {
+        errors.forEach {
+            addPath(it.first, it.second)
+        }
+    }
+
     val isEmpty: Boolean
         get() = messages.size == 0
 
