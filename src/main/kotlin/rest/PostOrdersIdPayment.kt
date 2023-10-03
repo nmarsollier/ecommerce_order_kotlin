@@ -1,9 +1,10 @@
 package rest
 
-import io.javalin.Javalin
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import events.EventService
+import io.javalin.Javalin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import rabbit.PaymentData
 import utils.errors.ValidationError
 import utils.gson.jsonToObject
@@ -32,12 +33,12 @@ class PostOrdersIdPayment private constructor(
 ) {
     private fun init(app: Javalin) {
         app.post(
-            "/v1/orders/:orderId/payment",
+            "/v1/orders/{orderId}/payment",
             route(
                 validateUser,
                 validateOrderId
             ) {
-                MainScope().launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     val orderId: String = it.pathParam("orderId")
                     val user = it.currentUser()
 

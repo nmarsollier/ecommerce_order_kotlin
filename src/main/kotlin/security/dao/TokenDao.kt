@@ -19,9 +19,10 @@ class TokenDao private constructor(
                     return null
                 }
 
-                it.entity ?: return null
+                val entity = it.entity ?: return null
+                val entityString = EntityUtils.toString(entity)
 
-                EntityUtils.toString(it.entity).jsonToObject<User>()
+                entityString.jsonToObject<User>()
             }
         } catch (e: Exception) {
             Log.error(e)

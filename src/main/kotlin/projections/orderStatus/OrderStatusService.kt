@@ -1,9 +1,10 @@
 package projections.orderStatus
 
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import events.repository.Event
 import events.repository.EventRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import projections.orderStatus.repository.OrderStatus
 import projections.orderStatus.repository.OrderStatusRepository
 
@@ -12,7 +13,7 @@ class OrderStatusService(
     val eventRepository: EventRepository = EventRepository.instance()
 ) {
     // Actualiza la proyección Order
-    fun update(event: Event) = MainScope().launch {
+    fun update(event: Event) = CoroutineScope(Dispatchers.IO).launch {
         val orderId = event.orderId ?: return@launch
         var order: OrderStatus? = orderRepository.findById(orderId)
 

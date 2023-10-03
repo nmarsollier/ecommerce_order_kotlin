@@ -1,9 +1,10 @@
 package batch
 
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import events.repository.EventRepository
 import events.repository.EventType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import projections.order.OrderService
 import projections.order.repository.Status
 import projections.orderStatus.repository.OrderStatusRepository
@@ -18,7 +19,7 @@ class BatchService private constructor(
     private val eventRepository: EventRepository = EventRepository.instance()
 ) {
 
-    suspend fun processPlacedOrders() = MainScope().launch {
+    suspend fun processPlacedOrders() = CoroutineScope(Dispatchers.IO).launch {
         if (placeOrdersRunning.compareAndSet(false, true)) {
             statusRepository.findByStatus(Status.PLACED).forEach { stat ->
                 stat.id?.let {
@@ -37,7 +38,7 @@ class BatchService private constructor(
         }
     }
 
-    fun processValidatedOrders() = MainScope().launch {
+    fun processValidatedOrders() = CoroutineScope(Dispatchers.IO).launch {
         if (validatedOrdersRunning.compareAndSet(false, true)) {
             statusRepository.findByStatus(Status.VALIDATED).forEach { stat ->
                 stat.id?.let {
@@ -50,7 +51,7 @@ class BatchService private constructor(
         }
     }
 
-    fun processPaymentDefinedOrders() = MainScope().launch {
+    fun processPaymentDefinedOrders() = CoroutineScope(Dispatchers.IO).launch {
         if (validatedOrdersRunning.compareAndSet(false, true)) {
             statusRepository.findByStatus(Status.PAYMENT_DEFINED).forEach { stat ->
                 stat.id?.let {
@@ -64,7 +65,7 @@ class BatchService private constructor(
     }
 
     private fun validateOrder(orderId: String) {
-        MainScope().launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val event = eventRepository.findPlaceByOrderId(orderId)
             if (event != null) {
                 /**

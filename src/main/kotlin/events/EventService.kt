@@ -26,9 +26,10 @@ class EventService private constructor(
                     }
                 )
             )
-            repository.save(event)
-            projections.updateProjections(event)
-            event
+            repository.save(event).let {
+                projections.updateProjections(it)
+                it
+            }
         }
     }
 

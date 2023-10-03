@@ -1,10 +1,12 @@
 package rest
 
 import io.javalin.Javalin
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import projections.orderStatus.repository.OrderStatusRepository
 import rest.dto.OrderListData
+import utils.gson.toJson
 import utils.javalin.route
 
 /**
@@ -39,12 +41,13 @@ class GetOrders private constructor(
             route(
                 validateUser
             ) {
-                MainScope().launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     val orders = repository.findByUserId(it.currentUser().id)
 
-                    it.json(orders.map {
-                        OrderListData(it)
-                    })
+                    it.json(orders
+                        .map { OrderListData(it) }
+                        .toList()
+                    )
                 }
             })
     }

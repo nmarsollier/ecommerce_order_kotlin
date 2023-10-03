@@ -8,13 +8,12 @@ import java.util.*
 typealias OrderStatusUpdater = (order: OrderStatus, event: Event) -> OrderStatus
 
 fun getUpdaterForEvent(type: EventType?): OrderStatusUpdater {
-    when (type) {
+    return when (type) {
         EventType.PLACE_ORDER -> placeEventUpdater
         EventType.ARTICLE_VALIDATION -> articleValidationUpdater
         EventType.PAYMENT -> paymentUpdater
-        null -> Unit
+        null -> voidEventUpdater
     }
-    return voidEventUpdater
 }
 
 internal val placeEventUpdater = { order: OrderStatus, event: Event ->

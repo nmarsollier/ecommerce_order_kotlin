@@ -10,9 +10,9 @@ class EventRepository private constructor() {
     private val collection = MongoStore.collection<Event>("event")
 
     suspend fun save(event: Event): Event {
-        val _id = collection.insertOne(event).insertedId?.toString()
+        val _id = collection.insertOne(event).insertedId?.asObjectId()?.value.toString()
 
-        return event.copy(id = _id)
+        return event.copy(id = _id, orderId = _id)
     }
 
     suspend fun findPlaceByCartId(cartId: String?): Event? {
@@ -36,11 +36,11 @@ class EventRepository private constructor() {
 
     suspend fun findByOrderId(orderId: String): List<Event> {
         return collection
-                .find(
-                    Filters.eq("orderId", orderId)
-                )
-                .sort(Sorts.ascending("created"))
-                .toList()
+            .find(
+                Filters.eq("orderId", orderId)
+            )
+            .sort(Sorts.ascending("created"))
+            .toList()
     }
 
     companion object {

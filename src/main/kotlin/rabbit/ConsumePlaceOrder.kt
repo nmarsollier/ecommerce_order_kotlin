@@ -1,8 +1,9 @@
 package rabbit
 
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import events.EventService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import utils.env.Log
 import utils.gson.jsonToObject
 import utils.rabbit.DirectConsumer
@@ -37,7 +38,7 @@ class ConsumePlaceOrder private constructor(
     }
 
 
-    private fun processPlaceOrder(event: RabbitEvent?) = MainScope().launch {
+    private fun processPlaceOrder(event: RabbitEvent?) = CoroutineScope(Dispatchers.IO).launch {
         event?.message?.toString()?.jsonToObject<NewPlaceData>()?.let { cart ->
             try {
                 val data = service.placeOrder(cart)
