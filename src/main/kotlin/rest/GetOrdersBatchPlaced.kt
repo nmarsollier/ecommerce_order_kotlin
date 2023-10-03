@@ -3,7 +3,7 @@ package rest
 import io.javalin.Javalin
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import model.batch.BatchService
+import batch.BatchService
 import utils.javalin.route
 
 /**

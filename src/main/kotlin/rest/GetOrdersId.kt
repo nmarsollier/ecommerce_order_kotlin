@@ -3,7 +3,7 @@ package rest
 import io.javalin.Javalin
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import model.orders.projections.order.OrderService
+import projections.order.OrderService
 import utils.errors.UnauthorizedError
 import utils.errors.ValidationError
 import utils.javalin.route

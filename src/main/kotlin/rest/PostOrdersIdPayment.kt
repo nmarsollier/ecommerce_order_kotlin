@@ -3,8 +3,8 @@ package rest
 import io.javalin.Javalin
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import model.orders.events.EventService
-import model.orders.events.dto.PaymentData
+import events.EventService
+import rabbit.PaymentData
 import utils.errors.ValidationError
 import utils.gson.jsonToObject
 import utils.javalin.route

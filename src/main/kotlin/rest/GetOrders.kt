@@ -3,7 +3,7 @@ package rest
 import io.javalin.Javalin
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import model.orders.projections.orderStatus.repository.OrderStatusRepository
+import projections.orderStatus.repository.OrderStatusRepository
 import rest.dto.OrderListData
 import utils.javalin.route
 

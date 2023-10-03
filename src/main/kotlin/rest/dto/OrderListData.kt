@@ -1,8 +1,8 @@
 package rest.dto
 
 import com.google.gson.annotations.SerializedName
-import model.orders.projections.order.repository.Status
-import model.orders.projections.orderStatus.repository.OrderStatus
+import projections.order.repository.Status
+import projections.orderStatus.repository.OrderStatus
 
 class OrderListData constructor(order: OrderStatus) {
     @SerializedName("id")

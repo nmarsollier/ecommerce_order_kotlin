@@ -33,7 +33,7 @@ application {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation 'io.javalin:javalin:3.13.3'
+    implementation 'io.javalin:javalin:5.6.1'
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'

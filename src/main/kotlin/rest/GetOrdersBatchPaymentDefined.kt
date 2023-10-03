@@ -1,7 +1,7 @@
 package rest
 
 import io.javalin.Javalin
-import model.batch.BatchService
+import batch.BatchService
 import utils.javalin.route
 
 /**

@@ -1,6 +1,6 @@
 package rabbit
 
-import model.security.TokenService
+import security.TokenService
 import utils.rabbit.FanoutConsumer
 import utils.rabbit.RabbitEvent
 

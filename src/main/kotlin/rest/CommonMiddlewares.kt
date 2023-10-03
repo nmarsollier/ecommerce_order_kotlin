@@ -1,10 +1,10 @@
 package rest
 
 import io.javalin.http.Context
-import model.security.TokenService
-import model.security.dao.User
-import model.security.validateAdminUser
-import model.security.validateUser
+import security.TokenService
+import security.dao.User
+import security.validateAdminUser
+import security.validateUser
 import org.bson.types.ObjectId
 import utils.env.Log
 import utils.errors.UnauthorizedError

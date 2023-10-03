@@ -1,8 +1,8 @@
 package rabbit
 
 import com.google.gson.annotations.SerializedName
-import model.orders.events.repository.Event
-import model.orders.events.repository.PlaceEvent
+import events.repository.Event
+import events.repository.PlaceEvent
 import utils.rabbit.DirectPublisher
 import utils.rabbit.RabbitEvent
 
