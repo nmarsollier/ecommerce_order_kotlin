@@ -45,7 +45,11 @@ class OrderStatusRepository(
     }
 
     suspend fun save(order: OrderStatus) {
-        collection.insertOne(order)
+        if (order.id != null) {
+            collection.replaceOne(Filters.eq("_id", ObjectId(order.id)), order)
+        } else {
+            collection.insertOne(order)
+        }
     }
 
     suspend fun delete(orderId: String) {

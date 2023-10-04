@@ -18,7 +18,7 @@ internal fun Order.getUpdaterForEvent(type: EventType?): OrderUpdater {
 
 internal val placeEventUpdater = { order: Order, event: Event ->
     order.copy(
-        id = event.orderId,
+        id = event.orderId ?: event.id,
         userId = event.placeEvent?.userId,
         cartId = event.placeEvent?.cartId,
         status = Status.PLACED,

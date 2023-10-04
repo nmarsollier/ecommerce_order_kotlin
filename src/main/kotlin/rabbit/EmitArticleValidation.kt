@@ -1,6 +1,7 @@
 package rabbit
 
 import com.google.gson.annotations.SerializedName
+import utils.gson.toJson
 import utils.rabbit.DirectPublisher
 import utils.rabbit.RabbitEvent
 

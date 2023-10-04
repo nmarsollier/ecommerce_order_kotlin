@@ -72,13 +72,11 @@ class BatchService(
                 /**
                  * Busca todos los artículos de un evento, los envía a rabbit para que catalog valide si están activos
                  */
-                if (event.type === EventType.PLACE_ORDER) {
-                    event.placeEvent?.articles?.forEach { a ->
-                        emitArticleValidation.emit(
-                            event.orderId!!,
-                            a.articleId!!
-                        )
-                    }
+                event.placeEvent?.articles?.forEach { a ->
+                    emitArticleValidation.emit(
+                        event.id!!,
+                        a.articleId!!
+                    )
                 }
             }
         }
