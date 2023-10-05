@@ -23,7 +23,7 @@ class ConsumeAuthLogout(
      *
      * @apiExample {json} Mensaje
      * {
-     * "type": "model.article-exist",
+     * "type": "article-exist",
      * "message" : "tokenId"
      * }
      */

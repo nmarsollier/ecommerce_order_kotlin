@@ -4,7 +4,7 @@ import events.EventService
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import projections.order.repository.asOrderId
-import rabbit.PaymentData
+import rabbit.dto.PaymentData
 import security.TokenService
 import security.validateTokenIsLoggedIn
 import utils.http.authHeader

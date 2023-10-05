@@ -1,6 +1,5 @@
 package projections.order
 
-import events.repository.Event
 import events.repository.EventRepository
 import projections.order.repository.Order
 
@@ -9,16 +8,14 @@ class OrderService(
 ) {
     // Se elimina y regenera la proyección a partir de los eventos.
     suspend fun buildOrder(orderId: String): Order? {
-        val events: List<Event> = repository.findByOrderId(orderId)
-
-        if (events.isEmpty()) {
-            return null
-        }
-
         var order = Order()
-        events.forEach {
-            order = order.update(it)
-        }
-        return order
+        return repository.findByOrderId(orderId)
+            .takeIf { it.isNotEmpty() }
+            ?.forEach {
+                order = order.update(it)
+            }
+            ?.let {
+                order
+            }
     }
 }

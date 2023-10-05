@@ -1,4 +1,4 @@
-package rabbit
+package rabbit.dto
 
 import com.google.gson.annotations.SerializedName
 import events.repository.PaymentEvent

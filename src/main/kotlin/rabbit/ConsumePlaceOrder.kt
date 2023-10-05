@@ -4,6 +4,7 @@ import events.EventService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import rabbit.dto.NewPlaceData
 import utils.env.Log
 import utils.gson.jsonToObject
 import utils.rabbit.DirectConsumer

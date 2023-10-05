@@ -56,3 +56,8 @@ class OrderStatusRepository(
         collection.deleteOne(Filters.eq("_id", ObjectId(orderId)))
     }
 }
+
+suspend fun OrderStatus.saveIn(repository: OrderStatusRepository): OrderStatus {
+    repository.save(this)
+    return this
+}

@@ -49,3 +49,8 @@ class EventRepository(
             .toList()
     }
 }
+
+suspend fun Event.saveIn(repository: EventRepository): Event {
+    repository.save(this)
+    return this
+}

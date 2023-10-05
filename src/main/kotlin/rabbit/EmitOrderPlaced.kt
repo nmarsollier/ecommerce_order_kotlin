@@ -41,7 +41,7 @@ class EmitOrderPlaced {
             )
         )
 
-        DirectPublisher.publish(eventToSend.exchange, eventToSend.queue, eventToSend)
+        DirectPublisher.publish("sell_flow", "order_placed", eventToSend)
     }
 }
 

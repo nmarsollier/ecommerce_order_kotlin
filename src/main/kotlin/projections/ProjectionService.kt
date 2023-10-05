@@ -10,3 +10,8 @@ class ProjectionService(
         Thread { service.update(event) }.start()
     }
 }
+
+fun Event.updateProjections(service: ProjectionService): Event {
+    service.updateProjections(this)
+    return this
+}

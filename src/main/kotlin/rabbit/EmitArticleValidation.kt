@@ -31,7 +31,7 @@ class EmitArticleValidation {
             message = ArticleValidationData(orderId, articleId)
         )
 
-        DirectPublisher.publish(eventToSend.exchange, eventToSend.queue, eventToSend)
+        DirectPublisher.publish("catalog", "catalog", eventToSend)
     }
 }
 
