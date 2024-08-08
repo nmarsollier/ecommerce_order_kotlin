@@ -44,10 +44,7 @@ Ver tutorial de instalación en [ecommerce](https://github.com/nmarsollier/ecomm
 
 ### Java
 
-Puede ser open jdk 11 o oracle 1.8+
-Java JDK 1.8  [oracle.com](http://www.oracle.com/technetwork/es/java/javase/downloads/index.html)
-
-Gradle [gradle.org](https://gradle.org/install/).
+Se uso Java JVM Coretto 22 
 
 Establecer las variables de entorno sujeridas en las instalaciones.
 Tanto los ejecutables de java, como gradle deben poder encontrarse en el path.
@@ -55,6 +52,10 @@ Tanto los ejecutables de java, como gradle deben poder encontrarse en el path.
 ## Ejecución del servidor
 
 Se clona el repositorio en el directorio deseado.
+
+```bash
+gradle clean build
+```
 
 Nos paramos en la carpeta donde se encuentra el archivo build.gradle y ejecutamos :
 

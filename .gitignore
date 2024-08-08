@@ -3,7 +3,6 @@
 build
 bin
 node_modules
-gradle
 
 # Ignore Gradle GUI config
 gradle-app.setting
